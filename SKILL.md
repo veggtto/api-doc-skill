@@ -118,10 +118,4 @@ const r=s=>{const b=document.querySelector(s).getBoundingClientRect();return Mat
 
 > **踩过的坑 · 超宽屏**：只给段落设 `max-width` 而表格不设，1440px 下看着正常，2000px 下正文很窄、表格铺满全宽，示例值被甩到屏幕最右，同一页面视觉撕裂。模板已用 `--maxw` + `main{max-width}` 修掉，别把它改回去。另一个是行内的 `.end` 标记紧跟正文时不留间距会糊成一片（`p > .end{margin-right}`）。
 
-量完再把文件发给用户（`SendUserFile`），说明可直接转给对接方。
-
-## Econage 系项目补充
-
-- 验证链路走 `/eco-go`，跑通后立即生成本文档，素材直接取那一轮的请求响应
-- 鉴权是请求头 `eco-auth-token`
-- 业务异常码形如 `eco-*`，写清触发条件
+量完再把文件交付给用户——宿主有发送文件的能力就用它，没有就给出落盘路径，说明可直接转给对接方。

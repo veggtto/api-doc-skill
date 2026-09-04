@@ -1,12 +1,12 @@
 # api-doc — 接口文档生成技能
 
-一个 Claude Code 技能：把跑通的接口变成一份**自包含 HTML 对接文档**，调用方双击就能看、能直接转发、能打印成 PDF。
+一个 Agent Skill：把跑通的接口变成一份**自包含 HTML 对接文档**，调用方双击就能看、能直接转发、能打印成 PDF。
 
-跨项目通用，不绑定 Econage（Econage 特有的约定收在 SKILL.md 末尾的补充小节里）。
+跨项目通用，也不绑定某一个宿主——标准 `SKILL.md` 格式，Claude Code、Claude 桌面/网页版、Agent SDK 吃的是同一份目录，正文里没有任何宿主专有的 API。
 
 ## 这个仓库是什么
 
-仓库根目录**本身就是那个技能**——`SKILL.md` 在根，`assets/` 放模板。所以可以直接把这个目录挂到 `~/.claude/skills/api-doc`，改完即生效，不需要构建。
+仓库根目录**本身就是那个技能**——`SKILL.md` 在根，`assets/` 放模板。所以把这个目录挂到宿主的技能目录（Claude Code 是 `~/.claude/skills/api-doc`）即可，改完即生效，不需要构建。
 
 ```
 api-doc-skill/
@@ -33,9 +33,11 @@ powershell -ExecutionPolicy Bypass -File scripts\install.ps1
 bash scripts/install.sh
 ```
 
-装完在 Claude Code 里用 `/api-doc` 调用，或者描述「给这个接口写份对接文档」让它自己命中。
+装完直接描述「给这个接口写份对接文档」，让它按 frontmatter 的 `description` 自己命中；Claude Code 里也可以用 `/api-doc` 显式调用。
 
 用复制方式安装的话，改完仓库要重新跑一次安装脚本。
+
+这两个脚本只覆盖 Claude Code 的技能目录。换别的宿主不用改内容，按它自己的方式加载这个目录（或打包上传）就行。
 
 ## 技能解决什么问题
 
