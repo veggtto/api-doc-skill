@@ -1,4 +1,4 @@
-# 把仓库挂到 ~/.claude/skills/api-doc
+﻿# 把仓库挂到 ~/.claude/skills/api-doc
 # 优先符号链接（改仓库即生效）；没权限就退回复制。
 $ErrorActionPreference = 'Stop'
 
