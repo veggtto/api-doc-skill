@@ -8,23 +8,25 @@
 >
 > The skill is written in Chinese and produces Chinese documents. What carries over regardless of language is the method it encodes: only write the doc *after* the endpoint has actually been exercised, quote real request/response payloads instead of what the code appears to intend, mark anything unverified rather than quietly implying it was tested, and lay the page out like a reference manual (ruled headings, bordered tables, boxed code) rather than a reading page.
 >
-> Install: `/plugin marketplace add veggtto/api-doc-skill` then `/plugin install api-doc@veggtto-skills`. MIT licensed.
+> Install: `claude plugin marketplace add veggtto/api-doc-skill`, then `claude plugin install api-doc@veggtto-skills`. Start a new session to pick it up. MIT licensed.
 
 ## 安装
 
-Claude Code 里两条命令：
+任意 shell 里两条命令：
 
 ```bash
-/plugin marketplace add veggtto/api-doc-skill
+claude plugin marketplace add veggtto/api-doc-skill
 ```
 
 ```bash
-/plugin install api-doc@veggtto-skills
+claude plugin install api-doc@veggtto-skills
 ```
 
-之后 `/plugin marketplace update` 拿更新。
+之后 `claude plugin marketplace update veggtto-skills` 拿更新。
 
-装完直接描述「给这个接口写份对接文档」，让它按 frontmatter 的 `description` 自己命中；也可以显式调用 `/api-doc:api-doc`。
+Claude Code **终端**里也可以用交互式的 `/plugin marketplace add …` / `/plugin install …`。注意桌面 App 的 Code 标签页**不支持 `/plugin`**（它是终端专属的交互面板命令），在那儿请用上面的 `claude plugin …` 形式。
+
+装完**新开一个会话**才生效。之后直接描述「给这个接口写份对接文档」，让它按 frontmatter 的 `description` 自己命中；也可以显式调用 `/api-doc:api-doc`。
 
 **不用插件机制的话**，`skills/api-doc/` 这个目录本身就是一份完整的标准技能，拷到宿主的技能目录即可（Claude Code 是 `~/.claude/skills/api-doc`），内容一个字不用改。Claude 桌面/网页版打包上传这个目录，Agent SDK 放进它自己的 skills 目录。
 
