@@ -174,10 +174,10 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
 <body>
 
 <h1>业务架构图取树接口</h1>
-<p class="sub">给业务架构图的每个节点补一个「有没有关联制度」的标记。路径、入参、其余字段与 BPA 原接口保持一致，只多返回一个 <code>hasSystemDoc</code>。</p>
+<p class="sub">给业务架构图的每个节点补一个「有没有关联制度」的标记。路径、入参、其余字段与 平台原接口保持一致，只多返回一个 <code>hasSystemDoc</code>。</p>
 <div class="facts">
   <span>成稿 <b>2026-09-04</b></span>
-  <span>示例取自 <b>本地实跑</b> 的真实请求响应</span>
+  <span>示例取自 <b>本地实跑</b> 的真实请求响应（作为公开样例，路径与节点名已脱敏）</span>
 </div>
 
 <!-- 目录只维护这一份，宽屏下由脚本克隆到左侧常驻栏 -->
@@ -194,8 +194,8 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
 </div>
 
 <h2 id="what"><a class="anchor" href="#what">#</a><span class="n">1</span>接口用途</h2>
-<p>需求「流程资产业务架构图增加显示关联制度图标」要求业务架构图的每个节点知道有没有关联制度，而原来的 BPA 取树接口 <code>/standard/bpa2/organization-link*/tree</code> 不返回这个信息。</p>
-<p>项目侧新增两个替代接口，内部调用 BPA 的同一套查询，补上 <code>hasSystemDoc</code> 后整树返回。<strong>除多这一个字段外，与原接口逐字段完全一致</strong>，已实跑对拍。BPA 原接口保持不动、不下线。</p>
+<p>需求「流程资产业务架构图增加显示关联制度图标」要求业务架构图的每个节点知道有没有关联制度，而原来的 平台取树接口 <code>/platform/arch/organization-link*/tree</code> 不返回这个信息。</p>
+<p>项目侧新增两个替代接口，内部调用平台的同一套查询，补上 <code>hasSystemDoc</code> 后整树返回。<strong>除多这一个字段外，与原接口逐字段完全一致</strong>，已实跑对拍。平台原接口保持不动、不下线。</p>
 
 <h2 id="endpoint"><a class="anchor" href="#endpoint">#</a><span class="n">2</span>端点与入参</h2>
 <div class="table-scroll">
@@ -204,18 +204,18 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
   <tbody>
     <tr>
       <td><span class="end portal">门户端</span><br><span class="note">流程资产查看界面 · 发布态</span></td>
-      <td class="path"><span class="verb">GET</span>/da-jiang/bpa/workflow/keyboard-tree</td>
-      <td class="path">/standard/bpa2/organization-link/tree</td>
+      <td class="path"><span class="verb">GET</span>/app/arch/keyboard-tree</td>
+      <td class="path">/platform/arch/organization-link/tree</td>
     </tr>
     <tr>
       <td><span class="end desk">工作台端</span><br><span class="note">流程资产编辑界面 · 草稿态</span></td>
-      <td class="path"><span class="verb">GET</span>/da-jiang/bpa/workflow/keyboard-tree-draft</td>
-      <td class="path">/standard/bpa2/organization-link-draft/tree</td>
+      <td class="path"><span class="verb">GET</span>/app/arch/keyboard-tree-draft</td>
+      <td class="path">/platform/arch/organization-link-draft/tree</td>
     </tr>
   </tbody>
 </table>
 </div>
-<p><strong>鉴权</strong>：请求头 <code>eco-auth-token</code>，不带或无效一律 <code>401</code>，见<a href="#errors">失败行为</a>。</p>
+<p><strong>鉴权</strong>：请求头 <code>X-Auth-Token</code>，不带或无效一律 <code>401</code>，见<a href="#errors">失败行为</a>。</p>
 
 <h3>请求参数（query string）</h3>
 <div class="table-scroll">
@@ -227,20 +227,20 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
   </tbody>
 </table>
 </div>
-<p class="note">入参与 BPA 原接口逐字保持一致，原来怎么调现在就怎么调，只换 URL。</p>
+<p class="note">入参与 平台原接口逐字保持一致，原来怎么调现在就怎么调，只换 URL。</p>
 
 <h3 id="auth">权限</h3>
 <div class="table-scroll">
 <table>
   <tbody>
-    <tr><td style="white-space:nowrap"><span class="end portal">门户端</span></td><td>非管理员按当前用户的权限表达式过滤可见节点，实现与 BPA 原接口一致。</td></tr>
-    <tr><td style="white-space:nowrap"><span class="end desk">工作台端</span></td><td>BPA 原接口此处不做权限过滤，本接口保持一致。</td></tr>
+    <tr><td style="white-space:nowrap"><span class="end portal">门户端</span></td><td>非管理员按当前用户的权限表达式过滤可见节点，实现与 平台原接口一致。</td></tr>
+    <tr><td style="white-space:nowrap"><span class="end desk">工作台端</span></td><td>平台原接口此处不做权限过滤，本接口保持一致。</td></tr>
   </tbody>
 </table>
 </div>
 <div class="warn">
   <h4>非管理员分支尚未实跑 <span class="tag todo">待补验证</span></h4>
-  <p>截至成稿只用管理员账号做过对拍，而管理员走的是「跳过权限表达式计算」那条分支 —— <strong>非管理员分支还没被真实执行过</strong>。拿到普通用户测试账号后需补测：同一账号下，本接口与 BPA 原接口返回的可见节点集合应完全一致。</p>
+  <p>截至成稿只用管理员账号做过对拍，而管理员走的是「跳过权限表达式计算」那条分支 —— <strong>非管理员分支还没被真实执行过</strong>。拿到普通用户测试账号后需补测：同一账号下，本接口与 平台原接口返回的可见节点集合应完全一致。</p>
 </div>
 
 <h2 id="resp"><a class="anchor" href="#resp">#</a><span class="n">3</span>响应字段</h2>
@@ -251,14 +251,14 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
   <tbody>
     <tr><td>id</td><td>String</td><td>节点 id</td><td><code>"1981332410449883136"</code></td></tr>
     <tr><td>parentId</td><td>String</td><td>父节点 id，根节点为 <code>"-1"</code></td><td><code>"-1"</code></td></tr>
-    <tr><td>name</td><td>String</td><td>节点名称</td><td><code>"卓驭-智能驾驶"</code></td></tr>
+    <tr><td>name</td><td>String</td><td>节点名称</td><td><code>"集团总部"</code></td></tr>
     <tr><td>order</td><td>String</td><td>同级排序值</td><td><code>"0"</code></td></tr>
     <tr><td>type</td><td>String</td><td><code>ARCH</code> 架构 / <code>WORKFLOW</code> 流程</td><td><code>"ARCH"</code></td></tr>
     <tr><td>code</td><td>String</td><td>节点编号，<strong>可能为 <code>null</code></strong>（引用节点就是 null）</td><td><code>"1.0"</code></td></tr>
     <tr><td>flowType</td><td>String</td><td>架构/流程分类，决定节点底色，<strong>可能为 <code>null</code></strong></td><td><code>"key1"</code></td></tr>
     <tr><td>reference</td><td>boolean</td><td>是否引用节点</td><td><code>false</code></td></tr>
     <tr><td>referencedId</td><td>String</td><td>被引用的原节点 id，非引用节点为 <code>null</code></td><td><code>null</code></td></tr>
-    <tr><td>i18nText</td><td>String</td><td>国际化名称</td><td><code>"卓驭-智能驾驶"</code></td></tr>
+    <tr><td>i18nText</td><td>String</td><td>国际化名称</td><td><code>"集团总部"</code></td></tr>
     <tr><td>hasWf</td><td>boolean</td><td>子孙节点中是否含流程 —— <strong>门户端独有</strong>，工作台端没有这个字段</td><td><code>true</code></td></tr>
     <tr class="new"><td>hasSystemDoc</td><td>boolean</td><td><strong>本次新增</strong>：该节点「流程制度」页签是否存在任意一条记录。<strong>两端口径不同，见下</strong></td><td><code>true</code></td></tr>
   </tbody>
@@ -282,14 +282,14 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
 <p class="note">示例里的地址是后端本地验证环境，实际联调换成对应环境的域名，路径和参数不变。</p>
 
 <h3 id="compare">同一节点 · 两端对照</h3>
-<p>节点「卓驭-智能驾驶」<code>1981332410449883136</code>：草稿里挂了 2 条制度、已发布版本 0 条。同一次实跑，两端返回如下 —— <strong>差别只在最后一行</strong>。</p>
+<p>节点「集团总部」<code>1981332410449883136</code>：草稿里挂了 2 条制度、已发布版本 0 条。同一次实跑，两端返回如下 —— <strong>差别只在最后一行</strong>。</p>
 <div class="split">
   <div class="portal-side">
     <h4><span class="end portal">门户端</span> 已发布版本</h4>
     <div class="codewrap"><button class="copy" type="button">复制</button><pre><code>{
   "id": "1981332410449883136",
   "parentId": "-1",
-  "name": "卓驭-智能驾驶",
+  "name": "集团总部",
   "order": "0",
   "type": "ARCH",
   "code": "1.0",
@@ -297,7 +297,7 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
   "flowType": "key1",
   "reference": false,
   "referencedId": null,
-  "i18nText": "卓驭-智能驾驶",
+  "i18nText": "集团总部",
   <mark>"hasSystemDoc": false</mark>
 }</code></pre></div>
   </div>
@@ -306,7 +306,7 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
     <div class="codewrap"><button class="copy" type="button">复制</button><pre><code>{
   "id": "1981332410449883136",
   "parentId": "-1",
-  "name": "卓驭-智能驾驶",
+  "name": "集团总部",
   "order": "0",
   "type": "ARCH",
   "code": "1.0",
@@ -314,7 +314,7 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
   "flowType": "key1",
   "reference": false,
   "referencedId": null,
-  "i18nText": "卓驭-智能驾驶",
+  "i18nText": "集团总部",
   <mark>"hasSystemDoc": true</mark>
 }</code></pre></div>
   </div>
@@ -328,14 +328,14 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
 <div class="codewrap"><button class="copy" type="button">复制</button><pre><code>{
   "id": "2016070746169913344",
   "parentId": "1981645028733579264",
-  "name": "测试流程20260127",
+  "name": "示例审批流程",
   "order": "40",
   "type": "WORKFLOW",
   "code": "-1.1-P02-V85",
   "flowType": null,
   "reference": false,
   "referencedId": null,
-  "i18nText": "测试流程20260127",
+  "i18nText": "示例审批流程",
   "hasSystemDoc": false
 }</code></pre></div>
 
@@ -343,14 +343,14 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
 <div class="codewrap"><button class="copy" type="button">复制</button><pre><code>{
   "id": "2077661317137620992",
   "parentId": "1981645068256505856",
-  "name": "内部职能支持管理1166661",
+  "name": "职能支持管理",
   "order": "160",
   "type": "ARCH",
   "code": null,
   "flowType": "key4",
   "reference": true,
   "referencedId": "2041811192854233088",
-  "i18nText": "内部职能支持管理1166661",
+  "i18nText": "职能支持管理",
   "hasSystemDoc": false
 }</code></pre></div>
 
@@ -358,7 +358,7 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
 <div class="codewrap"><button class="copy" type="button">复制</button><pre><code>{
   "id": "1981645028733579264",
   "parentId": "1981332410449883136",
-  "name": "产品能力建设",
+  "name": "产品研发中心",
   "order": "0",
   "type": "ARCH",
   "code": "1.1",
@@ -366,23 +366,23 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
   "flowType": "key2",
   "reference": false,
   "referencedId": null,
-  "i18nText": "产品能力建设",
+  "i18nText": "产品研发中心",
   "hasSystemDoc": true
 }</code></pre></div>
 
 <h3>完整请求</h3>
-<div class="codewrap"><button class="copy" type="button">复制</button><pre><code>GET /da-jiang/bpa/workflow/keyboard-tree?id=1981332410449883136&amp;subLevel=5
-eco-auth-token: {token}
+<div class="codewrap"><button class="copy" type="button">复制</button><pre><code>GET /app/arch/keyboard-tree?id=1981332410449883136&amp;subLevel=5
+X-Auth-Token: {token}
 
-GET /da-jiang/bpa/workflow/keyboard-tree-draft?id=1981332410449883136&amp;subLevel=5
-eco-auth-token: {token}</code></pre></div>
+GET /app/arch/keyboard-tree-draft?id=1981332410449883136&amp;subLevel=5
+X-Auth-Token: {token}</code></pre></div>
 <p class="note">实跑：门户端返回 74 个节点，工作台端 763 个。</p>
 
 <details>
   <summary>与原接口的对拍结果（回归证据）</summary>
   <div class="codewrap"><pre><code>keyboard-tree         new  74 行 / old  74 行   字段差异 0
 keyboard-tree-draft   new 763 行 / old 763 行   字段差异 0</code></pre></div>
-  <p class="note">除 <code>hasSystemDoc</code> 外逐字段完全一致。标记结果另用 BPA 自己的节点详情接口做过独立核对：门户端命中 2 个节点、工作台端 7 个，与页签里的真实记录条数一一对上。</p>
+  <p class="note">除 <code>hasSystemDoc</code> 外逐字段完全一致。标记结果另用 平台自己的节点详情接口做过独立核对：门户端命中 2 个节点、工作台端 7 个，与页签里的真实记录条数一一对上。</p>
 </details>
 
 <h2 id="edge"><a class="anchor" href="#edge">#</a><span class="n">5</span>边界与约束</h2>
@@ -390,15 +390,15 @@ keyboard-tree-draft   new 763 行 / old 763 行   字段差异 0</code></pre></d
   <li><strong><code>subLevel</code> 不影响 <code>hasSystemDoc</code> 的正确性。</strong>它只裁剪返回的节点范围；标记的取数覆盖整棵子树，被裁掉的节点根本不会出现在响应里，不存在「层数调小了标记就变了」的情况。</li>
   <li><strong>引用节点指向本子树之外时，标记退化为 <code>false</code>。</strong>标记按 <code>referencedId</code> 查，而查询范围限定在本次请求的子树内；被引用的原节点若在别的架构下，查不到就当没有。真要覆盖这种情况需要改成按 id 集合查，届时反馈。</li>
   <li><strong>没有分页，一次给完。</strong>响应是扁平数组，节点数随架构规模增长，实测门户端 74 条、工作台端 763 条。前端沿用原接口的拼树逻辑即可。</li>
-  <li><strong>两个「流程制度」页签的配置 id 是客户配置数据，不是常量。</strong>服务端通过 <code>dajiang.keyboard-map.system-doc.arch-tab-id</code> 和 <code>.flow-tab-id</code> 配置，默认 <code>ProcessDocuments</code> 与 <code>flowSystemDocument</code>。客户若在「要素页签配置」里把页签删了重建，id 会变、标记会集体变 false —— 出现这种情况找后端改配置，不是前端问题。</li>
+  <li><strong>两个「流程制度」页签的配置 id 是客户配置数据，不是常量。</strong>服务端通过 <code>app.keyboard-map.system-doc.arch-tab-id</code> 和 <code>.flow-tab-id</code> 配置，默认 <code>archSystemDoc</code> 与 <code>flowSystemDoc</code>。客户若在「要素页签配置」里把页签删了重建，id 会变、标记会集体变 false —— 出现这种情况找后端改配置，不是前端问题。</li>
 </ul>
 
 <h3 id="errors">失败行为 <span class="tag ok">均已实跑</span></h3>
 <div class="table-scroll">
 <table>
-  <thead><tr><th>场景</th><th>状态码</th><th>响应体</th><th>BPA 原接口</th></tr></thead>
+  <thead><tr><th>场景</th><th>状态码</th><th>响应体</th><th>平台原接口</th></tr></thead>
   <tbody>
-    <tr><td>未带 <code>eco-auth-token</code></td><td><code>401</code></td><td><code>缺少凭据</code></td><td>一致</td></tr>
+    <tr><td>未带 <code>X-Auth-Token</code></td><td><code>401</code></td><td><code>缺少凭据</code></td><td>一致</td></tr>
     <tr><td>token 无效或过期</td><td><code>401</code></td><td><code>令牌解码失败，可能是格式错误，原始值：…</code></td><td>一致</td></tr>
     <tr><td>缺 <code>subLevel</code> 参数</td><td><code>400</code></td><td><code>未归类错误</code></td><td>一致</td></tr>
     <tr><td><code>id</code> 传空串</td><td><code>200</code></td><td><code>[]</code></td><td>一致</td></tr>
@@ -416,7 +416,7 @@ keyboard-tree-draft   new 763 行 / old 763 行   字段差异 0</code></pre></d
   <tbody>
     <tr>
       <td style="white-space:nowrap">2026-09-04</td>
-      <td>新增 <code>keyboard-tree</code>（门户端）与 <code>keyboard-tree-draft</code>（工作台端），替代 BPA 原取树接口，响应每个节点新增 <code>hasSystemDoc</code>。判定口径按业务确认：门户端看已发布版本，工作台端看最新草稿版本。BPA 原接口不变、不下线。</td>
+      <td>新增 <code>keyboard-tree</code>（门户端）与 <code>keyboard-tree-draft</code>（工作台端），替代 平台原取树接口，响应每个节点新增 <code>hasSystemDoc</code>。判定口径按业务确认：门户端看已发布版本，工作台端看最新草稿版本。平台原接口不变、不下线。</td>
     </tr>
   </tbody>
 </table>
