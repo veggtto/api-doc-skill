@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""模板自检：改完 assets/template.html 或 examples/ 跑一次。
+"""模板自检：改完 skills/api-doc/assets/template.html 或 examples/ 跑一次。
 
 查三件事，都是肉眼看不出来的腐化：
   1. body 用了样式表没定义的 class —— 静默失效，没有任何报错
@@ -14,9 +14,10 @@ from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 ROOT = Path(__file__).resolve().parent.parent
-TPL = ROOT / "assets" / "template.html"
+SKILL_DIR = ROOT / "skills" / "api-doc"
+TPL = SKILL_DIR / "assets" / "template.html"
 EX = ROOT / "examples" / "keyboard-tree.html"
-SKILL = ROOT / "SKILL.md"
+SKILL = SKILL_DIR / "SKILL.md"
 
 problems = []
 

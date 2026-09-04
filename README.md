@@ -4,40 +4,49 @@
 
 跨项目通用，也不绑定某一个宿主——标准 `SKILL.md` 格式，Claude Code、Claude 桌面/网页版、Agent SDK 吃的是同一份目录，正文里没有任何宿主专有的 API。
 
-## 这个仓库是什么
-
-仓库根目录**本身就是那个技能**——`SKILL.md` 在根，`assets/` 放模板。所以把这个目录挂到宿主的技能目录（Claude Code 是 `~/.claude/skills/api-doc`）即可，改完即生效，不需要构建。
-
-```
-api-doc-skill/
-├── SKILL.md              # 技能本体：什么时候写、写什么、什么不能写
-├── assets/
-│   └── template.html     # 自包含 HTML 模板（含占位符）
-├── examples/
-│   └── keyboard-tree.html  # 真实产出样例，可直接在浏览器打开对照
-├── scripts/
-│   ├── install.ps1      # Windows
-│   ├── install.sh       # macOS / Linux / Git Bash
-│   └── check.py         # 模板自检，改完跑一次
-```
+> **In English** — An Agent Skill that turns a working HTTP API into a self-contained HTML handoff document: one file, no build step, no external assets. Open it by double-clicking, forward it as-is, print it to PDF.
+>
+> The skill is written in Chinese and produces Chinese documents. What carries over regardless of language is the method it encodes: only write the doc *after* the endpoint has actually been exercised, quote real request/response payloads instead of what the code appears to intend, mark anything unverified rather than quietly implying it was tested, and lay the page out like a reference manual (ruled headings, bordered tables, boxed code) rather than a reading page.
+>
+> Install: `/plugin marketplace add veggtto/api-doc-skill` then `/plugin install api-doc@veggtto-skills`. MIT licensed.
 
 ## 安装
 
-优先建符号链接（改仓库即生效），失败则退回复制。
+Claude Code 里两条命令：
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\install.ps1
+```bash
+/plugin marketplace add veggtto/api-doc-skill
 ```
 
 ```bash
-bash scripts/install.sh
+/plugin install api-doc@veggtto-skills
 ```
 
-装完直接描述「给这个接口写份对接文档」，让它按 frontmatter 的 `description` 自己命中；Claude Code 里也可以用 `/api-doc` 显式调用。
+之后 `/plugin marketplace update` 拿更新。
 
-用复制方式安装的话，改完仓库要重新跑一次安装脚本。
+装完直接描述「给这个接口写份对接文档」，让它按 frontmatter 的 `description` 自己命中；也可以显式调用 `/api-doc:api-doc`。
 
-这两个脚本只覆盖 Claude Code 的技能目录。换别的宿主不用改内容，按它自己的方式加载这个目录（或打包上传）就行。
+**不用插件机制的话**，`skills/api-doc/` 这个目录本身就是一份完整的标准技能，拷到宿主的技能目录即可（Claude Code 是 `~/.claude/skills/api-doc`），内容一个字不用改。Claude 桌面/网页版打包上传这个目录，Agent SDK 放进它自己的 skills 目录。
+
+## 仓库结构
+
+仓库同时是插件市场和插件本体（`source: "./"`）。
+
+```
+api-doc-skill/
+├── .claude-plugin/
+│   ├── marketplace.json    # 市场清单，让 /plugin marketplace add 认得
+│   └── plugin.json         # 插件清单
+├── skills/
+│   └── api-doc/            # 技能本体，可整个拷走单独使用
+│       ├── SKILL.md        # 什么时候写、写什么、什么不能写
+│       └── assets/
+│           └── template.html   # 自包含 HTML 模板（含占位符）
+├── examples/
+│   └── keyboard-tree.html  # 真实产出样例（已脱敏），可直接在浏览器打开对照
+└── scripts/
+    └── check.py            # 模板自检，改完跑一次
+```
 
 ## 技能解决什么问题
 
@@ -73,7 +82,12 @@ python scripts/check.py
 - **改动优先落在模板，不是 SKILL.md**。能用 CSS/骨架固化的就别写成文字规则——写成规则要靠模型每次记得遵守，做进模板则是默认行为。
 - **`description` 是唯一影响命中率的字段**。该用没用上、或不该用却用上了，改 frontmatter 的 `description`，别改正文。
 - **响应式必须测 1366 和 1440**，别只测 1600/2400。很多布局 bug 只在「窄于侧栏断点、宽于手机」这一段出现。
+- **发版记得 bump `.claude-plugin/plugin.json` 的 `version`**。版本号不变，已安装的用户拿不到更新。
 
 ## 由来
 
 从一个实际项目的接口文档反复迭代出来的。过程里最有价值的两次修正都不是凭空想出来的：一次是拿另一份公认更好的文档逐项对比，一次是把两份文档交给另一个模型做设计评审。SKILL.md 里那些看起来很具体的条款，基本都对应一次返工。
+
+## License
+
+MIT — 见 [LICENSE](LICENSE)。

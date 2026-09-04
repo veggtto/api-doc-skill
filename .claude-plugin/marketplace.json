@@ -1,0 +1,17 @@
+{
+  "name": "veggtto-skills",
+  "owner": {
+    "name": "songgonghua",
+    "url": "https://github.com/veggtto"
+  },
+  "description": "songgonghua 的 Claude Code 技能集。",
+  "plugins": [
+    {
+      "name": "api-doc",
+      "source": "./",
+      "description": "把跑通的接口变成一份自包含 HTML 对接文档。",
+      "license": "MIT",
+      "keywords": ["api", "documentation", "html"]
+    }
+  ]
+}

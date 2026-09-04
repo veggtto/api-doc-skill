@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "api-doc",
+  "displayName": "API Doc",
+  "version": "1.0.0",
+  "description": "把跑通的接口变成一份自包含 HTML 对接文档，调用方双击就能看、能直接转发、能打印成 PDF。",
+  "author": {
+    "name": "songgonghua",
+    "url": "https://github.com/veggtto"
+  },
+  "homepage": "https://github.com/veggtto/api-doc-skill",
+  "repository": "https://github.com/veggtto/api-doc-skill",
+  "license": "MIT",
+  "keywords": ["api", "documentation", "html", "frontend", "接口文档"]
+}
