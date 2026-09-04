@@ -1,10 +1,10 @@
 {
   "name": "veggtto-skills",
   "owner": {
-    "name": "songgonghua",
+    "name": "veggtto",
     "url": "https://github.com/veggtto"
   },
-  "description": "songgonghua 的 Claude Code 技能集。",
+  "description": "veggtto 的 Claude Code 技能集。",
   "plugins": [
     {
       "name": "api-doc",
