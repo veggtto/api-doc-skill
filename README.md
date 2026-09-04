@@ -15,9 +15,10 @@ api-doc-skill/
 │   └── template.html     # 自包含 HTML 模板（含占位符）
 ├── examples/
 │   └── keyboard-tree.html  # 真实产出样例，可直接在浏览器打开对照
-└── scripts/
-    ├── install.ps1       # Windows
-    └── install.sh        # macOS / Linux / Git Bash
+├── scripts/
+│   ├── install.ps1      # Windows
+│   ├── install.sh       # macOS / Linux / Git Bash
+│   └── check.py         # 模板自检，改完跑一次
 ```
 
 ## 安装
@@ -55,8 +56,20 @@ bash scripts/install.sh
 
 ## 维护约定
 
+改完跑一次自检——下面三种腐化肉眼都看不出来，而且**静默失效，没有任何报错**：
+
+```bash
+python scripts/check.py
+```
+
+它查：模板 body 有没有用样式表里不存在的 class；模板的 `<style>`/`<script>` 有没有和 `examples/` 走样；SKILL.md 有没有在推荐已经删掉的 class。这三条都真实发生过——有一轮模板的样式换成了新做法，body 骨架却还停在上一代，引用了 9 个已不存在的 class。
+
+其余约定：
+
 - **SKILL.md 里的每条规则都应该是踩过的坑**，不要写泛泛的最佳实践。加规则时把「为什么」一起写上，否则下次会被当成可有可无的建议绕过去。
-- **模板改动要同步 `examples/` 里的样例**，样例是回归基准——改完在浏览器里打开对照。
+- **规则的篇幅要配得上它的重要性**。单节超过 30 行就该压缩；整个文件超过 200 行会稀释注意力，模型容易略过中段。
+- **改动优先落在模板，不是 SKILL.md**。能用 CSS/骨架固化的就别写成文字规则——写成规则要靠模型每次记得遵守，做进模板则是默认行为。
+- **`description` 是唯一影响命中率的字段**。该用没用上、或不该用却用上了，改 frontmatter 的 `description`，别改正文。
 - **响应式必须测 1366 和 1440**，别只测 1600/2400。很多布局 bug 只在「窄于侧栏断点、宽于手机」这一段出现。
 
 ## 由来
