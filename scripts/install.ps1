@@ -14,7 +14,9 @@ if (Test-Path $target) {
         Write-Host "已存在符号链接，先移除：$target"
         $item.Delete()
     } else {
-        $backup = "$target.bak-$(Get-Date -Format yyyyMMddHHmmss)"
+        # 备份必须挪出 skills/，留在里面会被当成第二个同名技能注册
+        $backup = Join-Path $env:USERPROFILE ".claude\skills-backuppi-doc-$(Get-Date -Format yyyyMMddHHmmss)"
+        New-Item -ItemType Directory -Path (Split-Path -Parent $backup) -Force | Out-Null
         Write-Host "已存在实体目录，备份到：$backup"
         Move-Item $target $backup
     }

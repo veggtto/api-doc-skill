@@ -12,7 +12,9 @@ if [ -L "$target" ]; then
     echo "已存在符号链接，先移除：$target"
     rm "$target"
 elif [ -e "$target" ]; then
-    backup="$target.bak-$(date +%Y%m%d%H%M%S)"
+    # 备份必须挪出 skills/，留在里面会被当成第二个同名技能注册
+    backup="$HOME/.claude/skills-backup/api-doc-$(date +%Y%m%d%H%M%S)"
+    mkdir -p "$(dirname "$backup")"
     echo "已存在实体目录，备份到：$backup"
     mv "$target" "$backup"
 fi
