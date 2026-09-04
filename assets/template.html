@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{接口名}} · 接口文档</title>
+<style>
+/* 只做一套浅色主题：这份文件会被转发、会被打印成 PDF，
+   所有人应该看到同一份，不跟随系统深浅色。 */
+:root{
+  --fg:#1f2328; --fg-2:#32383f; --muted:#5b6570;
+  --line:#d8dee4; --bg:#fff; --code-bg:#f6f8fa;
+  --accent:#0969da;                      /* 链接、目录高亮、门户端 */
+  --desk:#8250df; --desk-bg:#f6f0fd;     /* 工作台端 */
+  --ok:#1a7f4b;   --ok-bg:#dafbe1;       /* GET、新增字段、已验证 */
+  --warn-line:#d4a72c; --warn-bg:#fff8c5;/* 注意、待补验证 */
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; -webkit-text-size-adjust:100%}
+
+/* body 本身就是那根 980 的列 —— 标题、目录、正文全在列里。
+   之前把列只给了
+，页眉和目录留在列外，笔记本宽度下目录盒会通栏铺满。 */
+body{
+  margin:0 auto; padding:32px 24px 80px; max-width:980px;
+  background:var(--bg); color:var(--fg);
+  font:15px/1.7 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+a{color:var(--accent)}
+
+h1{font-size:26px; font-weight:650; margin:0 0 6px; padding-bottom:12px; border-bottom:2px solid var(--line)}
+.sub{margin:10px 0 0; color:var(--fg-2); font-size:14.5px; line-height:1.65}
+.facts{display:flex; flex-wrap:wrap; gap:3px 22px; margin:12px 0 0; font-size:13px; color:var(--muted)}
+.facts b{font-weight:600; color:var(--fg)}
+
+h2{position:relative; font-size:20px; font-weight:650; margin:38px 0 10px;
+   padding-bottom:6px; border-bottom:1px solid var(--line)}
+h2 .n{color:var(--muted); font-weight:500; margin-right:.5em; font-variant-numeric:tabular-nums}
+h2 .anchor{position:absolute; left:-20px; top:2px; font-size:16px; color:var(--line);
+           text-decoration:none; opacity:0; transition:opacity .12s}
+h2:hover .anchor{opacity:1}
+h2 .anchor:hover{color:var(--accent)}
+h3{font-size:16px; font-weight:650; margin:24px 0 6px}
+p{margin:7px 0; color:var(--fg-2)}
+ul{padding-left:22px; color:var(--fg-2); margin:8px 0}
+li{margin:5px 0}
+strong{color:var(--fg); font-weight:650}
+.note{color:var(--muted); font-size:13.5px}
+
+code{background:var(--code-bg); padding:1px 5px; border-radius:4px; font-size:13px;
+     font-family:"Cascadia Code",Consolas,"Courier New",monospace}
+
+.codewrap{position:relative; margin:11px 0}
+pre{background:var(--code-bg); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; overflow-x:auto; margin:0; font-size:13px; line-height:1.55}
+pre code{background:none; padding:0}
+.copy{position:absolute; top:6px; right:7px; font:inherit; font-size:12px; line-height:1;
+      padding:4px 9px; color:var(--muted); background:var(--bg); border:1px solid var(--line);
+      border-radius:5px; cursor:pointer; opacity:0; transition:opacity .12s}
+.codewrap:hover .copy, .copy:focus-visible{opacity:1}
+.copy:hover{color:var(--fg); border-color:var(--muted)}
+.copy.done{color:var(--ok); border-color:var(--ok)}
+
+pre .k{color:#0550ae}          /* 键名 */
+pre .s{color:#0a7d33}          /* 字符串 */
+pre .n{color:#0550ae}          /* 数字 */
+pre .b{color:#8250df}          /* true / false / null */
+pre .h{color:#0a7d33; font-weight:600}
+pre .c{color:#6e7781}          /* 注释 */
+pre mark{background:var(--ok-bg); border-radius:3px; padding:1px 2px}
+
+.table-scroll{overflow-x:auto}
+table{border-collapse:collapse; width:100%; margin:12px 0; font-size:14px}
+th,td{border:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top}
+th{background:var(--code-bg); font-weight:600; white-space:nowrap}
+td{color:var(--fg-2)}
+tbody tr:nth-child(even){background:#fafbfc}
+tbody tr:hover{background:#eef4fb}
+.fields td:first-child{color:var(--fg); font-weight:600; white-space:nowrap;
+  font-family:"Cascadia Code",Consolas,monospace; font-size:13px}
+.fields td:nth-child(2){color:var(--muted); white-space:nowrap; font-size:13px}
+.fields td:last-child{white-space:nowrap}
+tr.new td{background:var(--ok-bg)}
+tr.new:hover td{background:#c9f5d8}
+.path{font-family:"Cascadia Code",Consolas,monospace; font-size:13px; white-space:nowrap}
+.verb{display:inline-block; background:var(--ok); color:#fff; border-radius:4px;
+      padding:0 7px; font-size:11.5px; font-weight:700; margin-right:8px; vertical-align:1px}
+
+/* 两端标记 —— 全文一律门户端在前、工作台端在后 */
+.end{display:inline-flex; align-items:center; gap:5px; font-weight:650; white-space:nowrap}
+.end::before{content:""; width:7px; height:7px; border-radius:50%; flex:none}
+.end.portal{color:var(--accent)} .end.portal::before{background:var(--accent)}
+.end.desk{color:var(--desk)}     .end.desk::before{background:var(--desk)}
+
+/* 并排只留给「同一节点两端对照」——全文唯一靠并排才成立的内容 */
+.split{display:grid; grid-template-columns:1fr 1fr; margin:12px 0;
+       border:1px solid var(--line); border-radius:6px; overflow:hidden}
+.split > div{padding:12px 14px; min-width:0}
+.split > div + div{border-left:1px solid var(--line)}
+.split .portal-side{background:#f3f8fd}
+.split .desk-side{background:var(--desk-bg)}
+.split h4{margin:0 0 6px; font-size:13.5px; font-weight:650}
+.split .codewrap{margin:8px 0 0}
+.split pre{background:var(--bg)}
+
+.tag{display:inline-block; border-radius:4px; padding:1px 8px; font-size:12.5px; font-weight:600}
+.tag.ok{background:var(--ok-bg); color:#116329}
+.tag.todo{background:var(--warn-bg); color:#7d5a08}
+
+.warn{background:var(--warn-bg); border-left:4px solid var(--warn-line);
+      padding:10px 14px; margin:14px 0; border-radius:0 5px 5px 0}
+.warn > :first-child{margin-top:0} .warn > :last-child{margin-bottom:0}
+.warn h4{margin:0 0 5px; font-size:14px; font-weight:650; display:flex;
+         align-items:center; gap:9px; flex-wrap:wrap}
+
+details{margin:14px 0; border:1px solid var(--line); border-radius:6px; padding:8px 14px}
+summary{cursor:pointer; font-weight:600; font-size:14px}
+summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+
+/* 正文顶部的目录盒。宽屏下被常驻侧栏取代，打印时反过来。 */
+.toc{background:var(--code-bg); border:1px solid var(--line); border-radius:6px;
+     padding:12px 20px; margin:22px 0 30px}
+.toc .toc-title{font-weight:650; font-size:12px; color:var(--muted); letter-spacing:.04em; margin-bottom:6px}
+.toc ol{margin:0; padding-left:22px}
+.toc li{margin:3px 0}
+.toc a{color:var(--accent); text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.toc-side, .to-top{display:none}
+
+@media screen and (min-width:1450px){
+  /* 侧栏常驻后，正文里那份目录就是重复内容 */
+  .toc{display:none}
+  .toc-side{
+    display:block; position:fixed; top:32px;
+    /* 贴着「居中正文」的左侧，不是贴屏幕左边 */
+    left:max(16px, calc(50% - 716px)); width:202px;
+    max-height:calc(100vh - 64px); overflow-y:auto;
+    font-size:13px; line-height:1.5;
+  }
+  .toc-side .toc-title{font-weight:650; color:var(--muted); font-size:12px;
+                       letter-spacing:.04em; margin-bottom:8px; padding-left:10px}
+  .toc-side ol{list-style:none; margin:0; padding:0}
+  .toc-side a{display:block; padding:5px 10px; color:var(--muted); text-decoration:none;
+              border-left:2px solid var(--line); border-radius:0 4px 4px 0}
+  .toc-side a:hover{color:var(--fg); background:var(--code-bg)}
+  .toc-side a.on{color:var(--accent); border-left-color:var(--accent);
+                 background:var(--code-bg); font-weight:650}
+}
+
+@media screen and (max-width:1449px){
+  .to-top{display:block; position:fixed; right:20px; bottom:20px; z-index:10;
+          background:var(--bg); border:1px solid var(--line); border-radius:20px;
+          padding:8px 14px; font-size:13px; color:var(--muted); text-decoration:none;
+          box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .to-top:hover{color:var(--fg); border-color:var(--muted)}
+}
+
+@media (max-width:700px){
+  body{padding:20px 16px 70px}
+  h2 .anchor{display:none}
+  .split{grid-template-columns:1fr}
+  .split > div + div{border-left:0; border-top:1px solid var(--line)}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important} html{scroll-behavior:auto} }
+
+@media print{
+  body{max-width:none; padding:0; font-size:11pt}
+  .copy, h2 .anchor, .toc-side, .to-top{display:none}
+  .toc{display:block; break-inside:avoid}
+  pre,table,.split,.warn{break-inside:avoid}
+  details > *{display:block}
+}
+</style>
+</head>
+<body>
+
+<h1>业务架构图取树接口</h1>
+<p class="sub">给业务架构图的每个节点补一个「有没有关联制度」的标记。路径、入参、其余字段与 BPA 原接口保持一致，只多返回一个 <code>hasSystemDoc</code>。</p>
+<div class="facts">
+  <span>项目 <b>dajiangzhuoyu</b></span>
+  <span>成稿 <b>2026-09-04</b></span>
+  <span>示例取自 <b>本地实跑</b> 的真实请求响应</span>
+</div>
+
+<!-- 目录只维护这一份，宽屏下由脚本克隆到左侧常驻栏 -->
+<div class="toc" id="toc">
+  <div class="toc-title">目录</div>
+  <ol>
+    <li><a href="#what">接口用途</a></li>
+    <li><a href="#endpoint">端点与入参</a></li>
+    <li><a href="#resp">响应字段</a></li>
+    <li><a href="#sample">请求响应示例</a></li>
+    <li><a href="#edge">边界与约束</a></li>
+    <li><a href="#history">改动历史</a></li>
+  </ol>
+</div>
+
+<h2><span class="n">1</span>接口用途</h2>
+    <p>{{需求背景：为什么需要这组接口，原有接口缺什么}}</p>
+    <p>{{做法一句话 + 与原接口的兼容性结论}}</p>
+  </section>
+
+  <section id="endpoint">
+    <h2><span class="n">2</span>端点与入参</h2>
+    <div class="eps">
+      <div class="ep">
+        <div class="scene"><b>{{A 端}}</b>{{场景说明}}</div>
+        <div class="path"><span class="verb">GET</span>{{/path}}</div>
+        <div class="old">替代 {{原端点}}</div>
+      </div>
+      <div class="ep">
+        <div class="scene"><b>{{B 端}}</b>{{场景说明}}</div>
+        <div class="path"><span class="verb">GET</span>{{/path}}</div>
+        <div class="old">替代 {{原端点}}</div>
+      </div>
+    </div>
+      <div class="ep desk">
+        <div class="top"><span class="end desk">{{B 端}}</span><span class="scene">{{场景说明}}</span></div>
+        <div class="path"><span class="verb">GET</span>{{/path}}</div>
+        <div class="old">替代 <span>{{原端点}}</span></div>
+      </div>
+    </div>
+    <p class="note">{{Method 与鉴权方式}}</p>
+
+    <h3>请求参数</h3>
+    <div class="tw">
+      <table class="fields">
+        <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>业务含义</th><th>示例值</th></tr></thead>
+        <tbody>
+          <tr><td><code>{{字段}}</code></td><td>{{类型}}</td><td>{{是/否}}</td><td>{{业务含义}}</td><td><code>{{实跑用过的真实值}}</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="auth">权限</h3>
+    <p>{{权限行为描述}}</p>
+    <!-- 有没验到的地方就如实写在这里，不要省略；没有就整块删掉 -->
+    <div class="callout gap">
+      <h4>{{未验证项标题}} <span class="status todo">待补验证</span></h4>
+      <p>{{为什么没验到 + 补测方法}}</p>
+    </div>
+  </section>
+
+  <section id="resp">
+    <h2><span class="n">3</span>响应字段</h2>
+    <p>{{响应结构：数组还是对象、分页还是全量}}</p>
+    <div class="tw">
+      <table class="fields">
+        <thead><tr><th>字段</th><th>类型</th><th>业务含义</th><th>示例值</th></tr></thead>
+        <tbody>
+          <tr><td><code>{{字段}}</code></td><td>{{类型}}</td><td>{{业务含义}}</td><td><code>{{真实值}}</code></td></tr>
+          <!-- 本次新增的字段加 class="new" 高亮 -->
+          <tr class="new"><td><code>{{新字段}}</code></td><td>{{类型}}</td><td>本次新增：{{含义}}</td><td><code>{{真实值}}</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 有"同一份数据在不同场景下含义不同"这类易错点时，用 .split 左右对照；没有就删掉 -->
+    <h3 id="rule">{{关键字段的判定口径}}</h3>
+    <div class="split">
+      <div class="desk-side">
+        <h4><span class="end desk">{{B 端}}</span></h4>
+        <p>{{口径}}</p>
+      </div>
+      <div class="portal-side">
+        <h4><span class="end portal">{{A 端}}</span></h4>
+        <p>{{口径}}</p>
+      </div>
+    </div>
+    <p><strong>{{最容易被误解的那句话，直接点破}}</strong></p>
+  </section>
+
+  <section id="sample">
+    <h2><span class="n">4</span>请求响应示例</h2>
+    <p class="note">{{环境说明：示例地址是本地验证环境，联调换域名}}</p>
+
+    <h3><span class="end desk">{{B 端}}</span>{{场景}}</h3>
+<pre><code>GET {{/path?query}}
+{{鉴权头}}: {token}
+
+HTTP 200   {{实跑返回多少条，摘了几条}}
+{{把实跑的真实响应贴进来，不要手写编造}}</code></pre>
+
+    <h3><span class="end portal">{{A 端}}</span>{{场景}}</h3>
+<pre><code>{{同上}}</code></pre>
+
+    <h3 id="errors">失败与边界 <span class="status done">均已实跑</span></h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>场景</th><th>本接口</th><th>{{对照接口}}</th></tr></thead>
+        <tbody>
+          <tr><td>{{场景}}</td><td>{{实跑结果}}</td><td>{{实跑结果}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details>
+      <summary>{{回归证据 / 对拍结果}}</summary>
+<pre><code>{{程序化比对的输出}}</code></pre>
+      <p class="note">{{独立基准是什么，怎么排除的循环验证}}</p>
+    </details>
+  </section>
+
+  <section id="edge">
+    <h2><span class="n">5</span>边界与约束</h2>
+    <ul>
+      <li>{{分页参数 / 字段长度 / 枚举取值 / 已知退化行为 / 可配置项}}</li>
+    </ul>
+  </section>
+
+  <section id="history">
+    <h2><span class="n">6</span>改动历史</h2>
+    <div class="tw">
+      <table>
+        <thead><tr><th>日期</th><th>变更</th></tr></thead>
+        <tbody>
+          <tr><td style="white-space:nowrap">{{YYYY-MM-DD}}</td><td>{{本次新增/变更了什么}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<a class="to-top" href="#">↑ 回到顶部</a>
+
+<script>
+(function(){
+  // ── 代码着色：只认 JSON 与请求行，够用且不引第三方库。
+  //    逐个文本节点处理，保留手写的 mark 高亮。
+  function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  var RE_METHOD = new RegExp('^(GET|POST|PUT|DELETE|PATCH)\\b', 'gm');
+  var RE_KEY    = new RegExp('"([^"]*)"(\\s*:)', 'g');
+  var RE_STR    = new RegExp(':(\\s*)"([^"]*)"', 'g');
+  var RE_LIT    = new RegExp('\\b(true|false|null)\\b', 'g');
+  var RE_NUM    = new RegExp(':(\\s*)(-?\\d+(?:\\.\\d+)?)(?=[,\\s}])', 'g');
+
+  function paint(root){
+    Array.prototype.slice.call(root.childNodes).forEach(function(node){
+      if (node.nodeType === 1){ paint(node); return; }
+      if (node.nodeType !== 3) return;
+      var span = document.createElement('span');
+      span.innerHTML = escHtml(node.nodeValue)
+        .replace(RE_METHOD, '<span class="h">$1</span>')
+        .replace(RE_KEY,    '<span class="k">"$1"</span>$2')
+        .replace(RE_STR,    ':$1<span class="s">"$2"</span>')
+        .replace(RE_LIT,    '<span class="b">$1</span>')
+        .replace(RE_NUM,    ':$1<span class="n">$2</span>');
+      node.parentNode.replaceChild(span, node);
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('pre > code'), paint);
+
+  // ── 复制按钮。带 execCommand 回退：这份文件常被双击从 file:// 打开，
+  //    那种来源下 navigator.clipboard 不可用。
+  Array.prototype.forEach.call(document.querySelectorAll('.copy'), function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.parentNode.querySelector('code');
+      if(!code) return;
+      var text = code.innerText;
+      function ok(){ btn.textContent='已复制'; btn.classList.add('done');
+        setTimeout(function(){ btn.textContent='复制'; btn.classList.remove('done'); }, 1400); }
+      function fallback(){
+        var ta=document.createElement('textarea');
+        ta.value=text; ta.setAttribute('readonly','');
+        ta.style.cssText='position:fixed;top:-1000px;opacity:0';
+        document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); ok(); }catch(e){ btn.textContent='复制失败'; }
+        document.body.removeChild(ta);
+      }
+      if (navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(text).then(ok, fallback);
+      } else { fallback(); }
+    });
+  });
+
+  // ── 目录只在 HTML 里维护一份，这里克隆成左侧常驻栏，避免两份走样
+  var box = document.getElementById('toc');
+  if (box){
+    var side = document.createElement('nav');
+    side.className = 'toc-side';
+    side.setAttribute('aria-label','目录');
+    side.innerHTML = box.innerHTML;
+    document.body.appendChild(side);
+  }
+
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc-side a'));
+  var map = {}, targets = [];
+  links.forEach(function(a){
+    var el = document.querySelector(a.getAttribute('href'));
+    if(el){ map[el.id] = a; targets.push(el); }
+  });
+  if(!targets.length) return;
+
+  function activate(id){
+    links.forEach(function(a){ a.classList.remove('on'); });
+    if(map[id]) map[id].classList.add('on');
+  }
+
+  // 当前章节取「最后一个越过顶部基准线」的那个。
+  // IntersectionObserver 自带的「第一个进入视口者」会滞后一节：上一节尚未滚出时仍算进入。
+  var LINE = 110;
+  function currentId(){
+    var doc = document.documentElement;
+    // 页面已到底：最后几节永远滚不过基准线，直接判给最后一节
+    if (window.innerHeight + window.scrollY >= doc.scrollHeight - 4){
+      return targets[targets.length - 1].id;
+    }
+    var id = targets[0].id;
+    for (var i = 0; i < targets.length; i++){
+      if (targets[i].getBoundingClientRect().top <= LINE) id = targets[i].id;
+    }
+    return id;
+  }
+
+  var ticking = false;
+  function sync(){
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){ activate(currentId()); ticking = false; });
+  }
+
+  // 两条腿：scroll 事件走常规浏览器；IntersectionObserver 兜底 ——
+  // 某些内嵌预览环境里 scrollTo 会滚动却不派发 scroll 事件。
+  window.addEventListener('scroll', sync, { passive:true });
+  window.addEventListener('resize', sync);
+  if (window.IntersectionObserver){
+    var io = new IntersectionObserver(sync, {
+      threshold:[0, 0.02, 0.98, 1],
+      rootMargin:'-' + LINE + 'px 0px 0px 0px'
+    });
+    targets.forEach(function(el){ io.observe(el); });
+  }
+  sync();
+})();
+</script>
+
+</body>
+</html>

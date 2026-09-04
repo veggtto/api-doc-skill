@@ -1,0 +1,13 @@
+# 安装脚本备份出来的旧目录
+*.bak-*
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 临时产物
+*.tmp
+*.log
