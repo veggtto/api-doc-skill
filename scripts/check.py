@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """模板自检：改完 skills/api-doc/assets/template.html 或 examples/ 跑一次。
 
-查六件事，都是肉眼看不出来的腐化：
+查七件事，都是肉眼看不出来的腐化：
   1. body 用了样式表没定义的 class —— 静默失效，没有任何报错
   2. 模板的 style/script 和样例走样 —— 历次只同步样式忘了同步骨架
   3. SKILL.md 里推荐的 class / CSS 变量 / 元素选择器模板已经没有了 —— 文档教了不存在的用法
   4. 目录 href 和 h2 的 id 对不上 —— 滚动高亮和锚点静默失效
   5. 样例里残留 {{占位符}} —— 样例应当是真实产出
   6. 模板主骨架混进了特定项目的前提（两端对照、新旧对拍）—— 默认路径该是填空，不是删改
+  7. 每个样例都过一遍技能自带的产出自检 lint_output.py（空话单元格、承诺句式等）
 """
 import io
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -133,6 +135,14 @@ if leaked:
         "模板主骨架出现了特定项目的前提: %s —— 两端对照和新旧对拍属于可选块，"
         "只能待在 body 末尾的注释里；主骨架要保持单端、全新接口、任意方法" % ", ".join(leaked)
     )
+
+# 7. 样例要能过技能自带的产出自检
+LINT = SKILL_DIR / "scripts" / "lint_output.py"
+if examples and LINT.exists():
+    r = subprocess.run([sys.executable, str(LINT)] + [str(p) for p in examples],
+                       capture_output=True, text=True, encoding="utf-8")
+    if r.returncode != 0:
+        problems.append("样例没过 lint_output.py：\n      " + r.stdout.strip().replace("\n", "\n      "))
 
 if problems:
     print("发现 %d 处问题：" % len(problems))
