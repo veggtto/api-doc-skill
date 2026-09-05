@@ -10,9 +10,10 @@
 :root{
   --fg:#1f2328; --fg-2:#32383f; --muted:#5b6570;
   --line:#d8dee4; --bg:#fff; --code-bg:#f6f8fa;
-  --accent:#0969da;                      /* 链接、目录高亮、门户端 */
-  --desk:#8250df; --desk-bg:#f6f0fd;     /* 工作台端 */
+  --accent:#0969da;                      /* 链接、目录高亮、A 端、POST */
+  --b:#8250df; --b-bg:#f6f0fd;           /* B 端 */
   --ok:#1a7f4b;   --ok-bg:#dafbe1;       /* GET、新增字段、已验证 */
+  --put:#bc4c00;  --del:#cf222e;         /* PUT/PATCH、DELETE */
   --warn-line:#d4a72c; --warn-bg:#fff8c5;/* 注意、待补验证 */
 }
 *{box-sizing:border-box}
@@ -21,6 +22,7 @@ html{scroll-behavior:smooth; -webkit-text-size-adjust:100%}
 /* body 本身就是那根 980 的列 —— 标题、目录、正文全在列里。
    之前把列只给了 <main>，页眉和目录留在列外，笔记本宽度下目录盒会通栏铺满。 */
 body{
+  counter-reset:sec;
   margin:0 auto; padding:32px 24px 80px; max-width:980px;
   background:var(--bg); color:var(--fg);
   font:15px/1.7 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -34,7 +36,9 @@ h1{font-size:26px; font-weight:650; margin:0 0 6px; padding-bottom:12px; border-
 
 h2{position:relative; font-size:20px; font-weight:650; margin:38px 0 10px;
    padding-bottom:6px; border-bottom:1px solid var(--line)}
-h2 .n{color:var(--muted); font-weight:500; margin-right:.5em; font-variant-numeric:tabular-nums}
+/* 章节号由计数器生成 —— 手写序号在插入/删除章节时必然漏改 */
+h2::before{counter-increment:sec; content:counter(sec);
+   color:var(--muted); font-weight:500; margin-right:.5em; font-variant-numeric:tabular-nums}
 h2 .anchor{position:absolute; left:-20px; top:2px; font-size:16px; color:var(--line);
            text-decoration:none; opacity:0; transition:opacity .12s}
 h2:hover .anchor{opacity:1}
@@ -57,6 +61,8 @@ pre code{background:none; padding:0}
       padding:4px 9px; color:var(--muted); background:var(--bg); border:1px solid var(--line);
       border-radius:5px; cursor:pointer; opacity:0; transition:opacity .12s}
 .codewrap:hover .copy, .copy:focus-visible{opacity:1}
+/* 触屏没有 hover，靠 hover 显示的按钮永远看不到 —— 这类设备上常驻显示 */
+@media (hover:none){.copy{opacity:1}}
 .copy:hover{color:var(--fg); border-color:var(--muted)}
 .copy.done{color:var(--ok); border-color:var(--ok)}
 
@@ -82,22 +88,25 @@ tbody tr:hover{background:#eef4fb}
 tr.new td{background:var(--ok-bg)}
 tr.new:hover td{background:#c9f5d8}
 .path{font-family:"Cascadia Code",Consolas,monospace; font-size:13px; white-space:nowrap}
-.verb{display:inline-block; background:var(--ok); color:#fff; border-radius:4px;
+/* 方法徽标：底色按 method 分，无修饰类时用中性灰兜底 */
+.verb{display:inline-block; background:var(--muted); color:#fff; border-radius:4px;
       padding:0 7px; font-size:11.5px; font-weight:700; margin-right:8px; vertical-align:1px}
+.verb.get{background:var(--ok)}          .verb.post{background:var(--accent)}
+.verb.put,.verb.patch{background:var(--put)} .verb.delete{background:var(--del)}
 
-/* 两端标记 —— 全文一律门户端在前、工作台端在后 */
+/* 两端标记 —— 全文一律 A 端在前、B 端在后 */
 .end{display:inline-flex; align-items:center; gap:5px; font-weight:650; white-space:nowrap}
 .end::before{content:""; width:7px; height:7px; border-radius:50%; flex:none}
-.end.portal{color:var(--accent)} .end.portal::before{background:var(--accent)}
-.end.desk{color:var(--desk)}     .end.desk::before{background:var(--desk)}
+.end.a{color:var(--accent)} .end.a::before{background:var(--accent)}
+.end.b{color:var(--b)}      .end.b::before{background:var(--b)}
 
 /* 并排只留给「同一节点两端对照」——全文唯一靠并排才成立的内容 */
 .split{display:grid; grid-template-columns:1fr 1fr; margin:12px 0;
        border:1px solid var(--line); border-radius:6px; overflow:hidden}
 .split > div{padding:12px 14px; min-width:0}
 .split > div + div{border-left:1px solid var(--line)}
-.split .portal-side{background:#f3f8fd}
-.split .desk-side{background:var(--desk-bg)}
+.split .a-side{background:#f3f8fd}
+.split .b-side{background:var(--b-bg)}
 .split h4{margin:0 0 6px; font-size:13.5px; font-weight:650}
 .split .codewrap{margin:8px 0 0}
 .split pre{background:var(--bg)}
@@ -167,7 +176,6 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
   .copy, h2 .anchor, .toc-side, .to-top{display:none}
   .toc{display:block; break-inside:avoid}
   pre,table,.split,.warn{break-inside:avoid}
-  details > *{display:block}
 }
 </style>
 </head>
@@ -193,23 +201,23 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
   </ol>
 </div>
 
-<h2 id="what"><a class="anchor" href="#what">#</a><span class="n">1</span>接口用途</h2>
+<h2 id="what"><a class="anchor" href="#what">#</a>接口用途</h2>
 <p>需求「流程资产业务架构图增加显示关联制度图标」要求业务架构图的每个节点知道有没有关联制度，而原来的 平台取树接口 <code>/platform/arch/organization-link*/tree</code> 不返回这个信息。</p>
 <p>项目侧新增两个替代接口，内部调用平台的同一套查询，补上 <code>hasSystemDoc</code> 后整树返回。<strong>除多这一个字段外，与原接口逐字段完全一致</strong>，已实跑对拍。平台原接口保持不动、不下线。</p>
 
-<h2 id="endpoint"><a class="anchor" href="#endpoint">#</a><span class="n">2</span>端点与入参</h2>
+<h2 id="endpoint"><a class="anchor" href="#endpoint">#</a>端点与入参</h2>
 <div class="table-scroll">
 <table>
   <thead><tr><th>使用场景</th><th>端点</th><th>替代的原接口</th></tr></thead>
   <tbody>
     <tr>
-      <td><span class="end portal">门户端</span><br><span class="note">流程资产查看界面 · 发布态</span></td>
-      <td class="path"><span class="verb">GET</span>/app/arch/keyboard-tree</td>
+      <td><span class="end a">门户端</span><br><span class="note">流程资产查看界面 · 发布态</span></td>
+      <td class="path"><span class="verb get">GET</span>/app/arch/keyboard-tree</td>
       <td class="path">/platform/arch/organization-link/tree</td>
     </tr>
     <tr>
-      <td><span class="end desk">工作台端</span><br><span class="note">流程资产编辑界面 · 草稿态</span></td>
-      <td class="path"><span class="verb">GET</span>/app/arch/keyboard-tree-draft</td>
+      <td><span class="end b">工作台端</span><br><span class="note">流程资产编辑界面 · 草稿态</span></td>
+      <td class="path"><span class="verb get">GET</span>/app/arch/keyboard-tree-draft</td>
       <td class="path">/platform/arch/organization-link-draft/tree</td>
     </tr>
   </tbody>
@@ -233,8 +241,8 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
 <div class="table-scroll">
 <table>
   <tbody>
-    <tr><td style="white-space:nowrap"><span class="end portal">门户端</span></td><td>非管理员按当前用户的权限表达式过滤可见节点，实现与 平台原接口一致。</td></tr>
-    <tr><td style="white-space:nowrap"><span class="end desk">工作台端</span></td><td>平台原接口此处不做权限过滤，本接口保持一致。</td></tr>
+    <tr><td style="white-space:nowrap"><span class="end a">门户端</span></td><td>非管理员按当前用户的权限表达式过滤可见节点，实现与 平台原接口一致。</td></tr>
+    <tr><td style="white-space:nowrap"><span class="end b">工作台端</span></td><td>平台原接口此处不做权限过滤，本接口保持一致。</td></tr>
   </tbody>
 </table>
 </div>
@@ -243,7 +251,7 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
   <p>截至成稿只用管理员账号做过对拍，而管理员走的是「跳过权限表达式计算」那条分支 —— <strong>非管理员分支还没被真实执行过</strong>。拿到普通用户测试账号后需补测：同一账号下，本接口与 平台原接口返回的可见节点集合应完全一致。</p>
 </div>
 
-<h2 id="resp"><a class="anchor" href="#resp">#</a><span class="n">3</span>响应字段</h2>
+<h2 id="resp"><a class="anchor" href="#resp">#</a>响应字段</h2>
 <p>返回<strong>扁平节点数组</strong>，不是嵌套树，层级关系由 <code>parentId</code> 表达 —— 与原接口一致。</p>
 <div class="table-scroll">
 <table class="fields">
@@ -270,22 +278,22 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
 <div class="table-scroll">
 <table>
   <tbody>
-    <tr><td style="white-space:nowrap"><span class="end portal">门户端</span></td><td>看该节点<strong>已发布版本</strong>的「流程制度」页签有没有记录。</td></tr>
-    <tr><td style="white-space:nowrap"><span class="end desk">工作台端</span></td><td>看该节点<strong>最新草稿版本</strong>的「流程制度」页签有没有记录。</td></tr>
+    <tr><td style="white-space:nowrap"><span class="end a">门户端</span></td><td>看该节点<strong>已发布版本</strong>的「流程制度」页签有没有记录。</td></tr>
+    <tr><td style="white-space:nowrap"><span class="end b">工作台端</span></td><td>看该节点<strong>最新草稿版本</strong>的「流程制度」页签有没有记录。</td></tr>
   </tbody>
 </table>
 </div>
 <p><strong>所以同一个节点在两端可能一真一假。</strong>草稿里挂了制度但还没发布时，工作台显示图标、门户不显示 —— <strong>这是预期行为，不是 bug，不要当成数据不一致来排查</strong>。下一节用同一个节点的两份真实响应把这件事摊开。</p>
 <p>引用节点（<code>reference=true</code>）按被引用的原节点 <code>referencedId</code> 判断，不看自己。</p>
 
-<h2 id="sample"><a class="anchor" href="#sample">#</a><span class="n">4</span>请求响应示例</h2>
+<h2 id="sample"><a class="anchor" href="#sample">#</a>请求响应示例</h2>
 <p class="note">示例里的地址是后端本地验证环境，实际联调换成对应环境的域名，路径和参数不变。</p>
 
 <h3 id="compare">同一节点 · 两端对照</h3>
 <p>节点「集团总部」<code>1981332410449883136</code>：草稿里挂了 2 条制度、已发布版本 0 条。同一次实跑，两端返回如下 —— <strong>差别只在最后一行</strong>。</p>
 <div class="split">
-  <div class="portal-side">
-    <h4><span class="end portal">门户端</span> 已发布版本</h4>
+  <div class="a-side">
+    <h4><span class="end a">门户端</span> 已发布版本</h4>
     <div class="codewrap"><button class="copy" type="button">复制</button><pre><code>{
   "id": "1981332410449883136",
   "parentId": "-1",
@@ -301,8 +309,8 @@ summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; borde
   <mark>"hasSystemDoc": false</mark>
 }</code></pre></div>
   </div>
-  <div class="desk-side">
-    <h4><span class="end desk">工作台端</span> 最新草稿</h4>
+  <div class="b-side">
+    <h4><span class="end b">工作台端</span> 最新草稿</h4>
     <div class="codewrap"><button class="copy" type="button">复制</button><pre><code>{
   "id": "1981332410449883136",
   "parentId": "-1",
@@ -385,7 +393,7 @@ keyboard-tree-draft   new 763 行 / old 763 行   字段差异 0</code></pre></d
   <p class="note">除 <code>hasSystemDoc</code> 外逐字段完全一致。标记结果另用 平台自己的节点详情接口做过独立核对：门户端命中 2 个节点、工作台端 7 个，与页签里的真实记录条数一一对上。</p>
 </details>
 
-<h2 id="edge"><a class="anchor" href="#edge">#</a><span class="n">5</span>边界与约束</h2>
+<h2 id="edge"><a class="anchor" href="#edge">#</a>边界与约束</h2>
 <ul>
   <li><strong><code>subLevel</code> 不影响 <code>hasSystemDoc</code> 的正确性。</strong>它只裁剪返回的节点范围；标记的取数覆盖整棵子树，被裁掉的节点根本不会出现在响应里，不存在「层数调小了标记就变了」的情况。</li>
   <li><strong>引用节点指向本子树之外时，标记退化为 <code>false</code>。</strong>标记按 <code>referencedId</code> 查，而查询范围限定在本次请求的子树内；被引用的原节点若在别的架构下，查不到就当没有。真要覆盖这种情况需要改成按 id 集合查，届时反馈。</li>
@@ -409,7 +417,7 @@ keyboard-tree-draft   new 763 行 / old 763 行   字段差异 0</code></pre></d
 </div>
 <p class="note">响应体是纯文本，不是 JSON 包装。<strong>本接口不抛业务异常码</strong>：查不到就返回空数组，不报错 —— 所以「空数组」要当成正常结果处理，不要当异常。</p>
 
-<h2 id="history"><a class="anchor" href="#history">#</a><span class="n">6</span>改动历史</h2>
+<h2 id="history"><a class="anchor" href="#history">#</a>改动历史</h2>
 <div class="table-scroll">
 <table>
   <thead><tr><th>日期</th><th>变更</th></tr></thead>
@@ -431,9 +439,10 @@ keyboard-tree-draft   new 763 行 / old 763 行   字段差异 0</code></pre></d
   function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   var RE_METHOD = new RegExp('^(GET|POST|PUT|DELETE|PATCH)\\b', 'gm');
   var RE_KEY    = new RegExp('"([^"]*)"(\\s*:)', 'g');
-  var RE_STR    = new RegExp(':(\\s*)"([^"]*)"', 'g');
+  //    值可以跟在 : 之后，也可以跟在数组的 [ 或 , 之后，否则数组元素不着色。
+  var RE_STR    = new RegExp('([:\\[,])(\\s*)"([^"]*)"', 'g');
   var RE_LIT    = new RegExp('\\b(true|false|null)\\b', 'g');
-  var RE_NUM    = new RegExp(':(\\s*)(-?\\d+(?:\\.\\d+)?)(?=[,\\s}])', 'g');
+  var RE_NUM    = new RegExp('([:\\[,])(\\s*)(-?\\d+(?:\\.\\d+)?)(?=[,\\s}\\]]|$)', 'g');
 
   function paint(root){
     Array.prototype.slice.call(root.childNodes).forEach(function(node){
@@ -443,9 +452,9 @@ keyboard-tree-draft   new 763 行 / old 763 行   字段差异 0</code></pre></d
       span.innerHTML = escHtml(node.nodeValue)
         .replace(RE_METHOD, '<span class="h">$1</span>')
         .replace(RE_KEY,    '<span class="k">"$1"</span>$2')
-        .replace(RE_STR,    ':$1<span class="s">"$2"</span>')
+        .replace(RE_STR,    '$1$2<span class="s">"$3"</span>')
         .replace(RE_LIT,    '<span class="b">$1</span>')
-        .replace(RE_NUM,    ':$1<span class="n">$2</span>');
+        .replace(RE_NUM,    '$1$2<span class="n">$3</span>');
       node.parentNode.replaceChild(span, node);
     });
   }
@@ -472,6 +481,19 @@ keyboard-tree-draft   new 763 行 / old 763 行   字段差异 0</code></pre></d
         navigator.clipboard.writeText(text).then(ok, fallback);
       } else { fallback(); }
     });
+  });
+
+  // ── 打印时展开折叠块。CSS 做不到：details > * 设 display 无效，
+  //    闭合时内容在 slot 里，只能真的把 open 打开，打印完再恢复原样。
+  var reclose = [];
+  window.addEventListener('beforeprint', function(){
+    reclose = Array.prototype.filter.call(document.querySelectorAll('details'),
+      function(d){ return !d.open; });
+    reclose.forEach(function(d){ d.open = true; });
+  });
+  window.addEventListener('afterprint', function(){
+    reclose.forEach(function(d){ d.open = false; });
+    reclose = [];
   });
 
   // ── 目录只在 HTML 里维护一份，这里克隆成左侧常驻栏，避免两份走样

@@ -1,6 +1,3 @@
-# 安装脚本备份出来的旧目录
-# 安装脚本的备份现在放在 ~/.claude/skills-backup/，不落在仓库里
-
 # 编辑器 / 系统
 .idea/
 .vscode/
